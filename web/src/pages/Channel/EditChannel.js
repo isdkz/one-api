@@ -215,26 +215,12 @@ const EditChannel = () => {
               </Form.Field>
             )
           }
-          {
-            inputs.type !== 3 && inputs.type !== 8 && (
-              <Form.Field>
-                <Form.Input
-                  label='镜像'
-                  name='base_url'
-                  placeholder={'此项可选，输入镜像站地址，格式为：https://domain.com'}
-                  onChange={handleInputChange}
-                  value={inputs.base_url}
-                  autoComplete='new-password'
-                />
-              </Form.Field>
-            )
-          }
           <Form.Field>
             <Form.Input
               label='名称'
               required
               name='name'
-              placeholder={'请输入名称'}
+              placeholder={'请为渠道命名'}
               onChange={handleInputChange}
               value={inputs.name}
               autoComplete='new-password'
@@ -243,7 +229,7 @@ const EditChannel = () => {
           <Form.Field>
             <Form.Dropdown
               label='分组'
-              placeholder={'请选择分组'}
+              placeholder={'请选择可以使用该渠道的分组'}
               name='groups'
               required
               fluid
@@ -260,7 +246,7 @@ const EditChannel = () => {
           <Form.Field>
             <Form.Dropdown
               label='模型'
-              placeholder={'请选择该通道所支持的模型'}
+              placeholder={'请选择该渠道所支持的模型'}
               name='models'
               required
               fluid
@@ -312,7 +298,7 @@ const EditChannel = () => {
           <Form.Field>
             <Form.TextArea
               label='模型映射'
-              placeholder={`此项可选，为一个 JSON 文本，键为用户请求的模型名称，值为要替换的模型名称，例如：\n${JSON.stringify(MODEL_MAPPING_EXAMPLE, null, 2)}`}
+              placeholder={`此项可选，用于修改请求体中的模型名称，为一个 JSON 字符串，键为请求中模型名称，值为要替换的模型名称，例如：\n${JSON.stringify(MODEL_MAPPING_EXAMPLE, null, 2)}`}
               name='model_mapping'
               onChange={handleInputChange}
               value={inputs.model_mapping}
@@ -337,7 +323,7 @@ const EditChannel = () => {
                 label='密钥'
                 name='key'
                 required
-                placeholder={inputs.type === 15 ? "请输入 access token，当前版本暂不支持自动刷新，请每 30 天更新一次" : '请输入密钥'}
+                placeholder={inputs.type === 15 ? "请输入 access token，当前版本暂不支持自动刷新，请每 30 天更新一次" : '请输入渠道对应的鉴权密钥'}
                 onChange={handleInputChange}
                 value={inputs.key}
                 autoComplete='new-password'
@@ -352,6 +338,20 @@ const EditChannel = () => {
                 name='batch'
                 onChange={() => setBatch(!batch)}
               />
+            )
+          }
+          {
+            inputs.type !== 3 && inputs.type !== 8 && (
+              <Form.Field>
+                <Form.Input
+                  label='镜像'
+                  name='base_url'
+                  placeholder={'此项可选，用于通过镜像站来进行 API 调用，请输入镜像站地址，格式为：https://domain.com'}
+                  onChange={handleInputChange}
+                  value={inputs.base_url}
+                  autoComplete='new-password'
+                />
+              </Form.Field>
             )
           }
           <Button type={isEdit ? "button" : "submit"} positive onClick={submit}>提交</Button>
