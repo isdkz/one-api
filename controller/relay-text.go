@@ -22,6 +22,12 @@ const (
 	APITypeZhipu
 )
 
+var httpClient *http.Client
+
+func init() {
+	httpClient = &http.Client{}
+}
+
 func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 	channelType := c.GetInt("channel")
 	tokenId := c.GetInt("token_id")
@@ -79,13 +85,14 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 		}
 	}
 	apiType := APITypeOpenAI
-	if strings.HasPrefix(textRequest.Model, "claude") {
+	switch channelType {
+	case common.ChannelTypeAnthropic:
 		apiType = APITypeClaude
-	} else if strings.HasPrefix(textRequest.Model, "ERNIE") {
+	case common.ChannelTypeBaidu:
 		apiType = APITypeBaidu
-	} else if strings.HasPrefix(textRequest.Model, "PaLM") {
+	case common.ChannelTypePaLM:
 		apiType = APITypePaLM
-	} else if strings.HasPrefix(textRequest.Model, "chatglm_") {
+	case common.ChannelTypeZhipu:
 		apiType = APITypeZhipu
 	}
 	baseURL := common.ChannelBaseURLs[channelType]
@@ -134,6 +141,9 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 		fullRequestURL += "?access_token=" + apiKey // TODO: access token expire in 30 days
 	case APITypePaLM:
 		fullRequestURL = "https://generativelanguage.googleapis.com/v1beta2/models/chat-bison-001:generateMessage"
+		if baseURL != "" {
+			fullRequestURL = fmt.Sprintf("%s/v1beta2/models/chat-bison-001:generateMessage", baseURL)
+		}
 		apiKey := c.Request.Header.Get("Authorization")
 		apiKey = strings.TrimPrefix(apiKey, "Bearer ")
 		fullRequestURL += "?key=" + apiKey
@@ -244,8 +254,7 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 	req.Header.Set("Content-Type", c.Request.Header.Get("Content-Type"))
 	req.Header.Set("Accept", c.Request.Header.Get("Accept"))
 	//req.Header.Set("Connection", c.Request.Header.Get("Connection"))
-	client := &http.Client{}
-	resp, err := client.Do(req)
+	resp, err := httpClient.Do(req)
 	if err != nil {
 		return errorWrapper(err, "do_request_failed", http.StatusInternalServerError)
 	}
