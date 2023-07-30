@@ -173,7 +173,7 @@ func buildXunfeiAuthUrl(hostUrl string, apiKey, apiSecret string) string {
 	return callUrl
 }
 
-func xunfeiStreamHandler(c *gin.Context, textRequest GeneralOpenAIRequest, appId string, apiKey string, apiSecret string) (*OpenAIErrorWithStatusCode, *Usage) {
+func xunfeiStreamHandler(c *gin.Context, textRequest GeneralOpenAIRequest, appId string, apiSecret string, apiKey string) (*OpenAIErrorWithStatusCode, *Usage) {
 	var usage Usage
 	d := websocket.Dialer{
 		HandshakeTimeout: 5 * time.Second,
@@ -205,6 +205,10 @@ func xunfeiStreamHandler(c *gin.Context, textRequest GeneralOpenAIRequest, appId
 			}
 			dataChan <- response
 			if response.Payload.Choices.Status == 2 {
+				err := conn.Close()
+				if err != nil {
+					common.SysError("error closing websocket connection: " + err.Error())
+				}
 				break
 			}
 		}
